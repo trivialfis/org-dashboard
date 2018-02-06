@@ -40,7 +40,7 @@
 ;;     **** TODO learn proper warmup
 ;;     **** DONE look for a jogging partner
 ;;     **** DONE run 10 minutes on monday
-;;     
+;;
 ;;     * Project: Super Widget
 ;;     :PROPERTIES:
 ;;     :CATEGORY: widget
@@ -88,7 +88,7 @@
 
 ;; Notes:
 ;;
-;; Labels link back to the trees where they were found. 
+;; Labels link back to the trees where they were found.
 ;;
 ;; The color of the progress bar is (naively, for now) chosen based on
 ;; the progress value, from dark red to bright green.
@@ -190,7 +190,7 @@ See Info node `(org) Breaking down tasks'."
                         (truncate-string-to-width goal 25 0 nil "…"))
        (make-progress-bar (progress-percent)
                           (let ((color (org-dashboard--progress-color progress-percent)))
-                            (concat (propertize 
+                            (concat (propertize
                                      (make-string (/ progress-percent 4) ?|)
                                      'font-lock-face (list :foreground color))
                                     (make-string (- (/ 100 4) (/ progress-percent 4)) ?\s))))
@@ -225,7 +225,7 @@ See Info node `(org) Breaking down tasks'."
     (goto-char (point-min))
     (org-refresh-category-properties)
     (cl-loop while (re-search-forward org-dashboard--cookie-re nil t)
-             if (org-at-heading-p)
+             if (or (org-at-heading-p) (org-at-item-p))
              collect (list :category (substring-no-properties (org-get-category))
                            :heading (org-dashboard--get-heading-text)
                            :id (org-id-get)
@@ -258,4 +258,3 @@ See Info node `(org) Breaking down tasks'."
 
 (provide 'org-dashboard)
 ;;; org-dashboard.el ends here
-
