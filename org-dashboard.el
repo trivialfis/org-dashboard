@@ -250,8 +250,9 @@ See Info node `(org) Breaking down tasks'."
               (string-to-number (match-string 2 cookie)))))))
 
 (defun org-dashboard--progress-color (percent)
-  (cond ((< percent 33) "red")
-        ((< percent 66) "dark green")
+  (cond ((< percent 25) "red")
+	((< percent 50) "orange")
+        ((< percent 75) "dark green")
         ((< percent 100) "forest green")
         (t "green")))
 
