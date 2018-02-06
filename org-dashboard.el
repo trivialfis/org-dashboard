@@ -220,28 +220,46 @@ See Info node `(org) Breaking down tasks'."
                                     progress-bar
                                     percent-indicator)))))))
 
+(defun org-dashboard--get-tags ()
+  "Get tags if is at heading."
+  (if (org-at-heading-p)
+      (org-get-tags)
+    nil))
+
 (defun org-dashboard--collect-progress-current-buffer ()
+  "Collect progress on current buffer."
   (save-excursion
     (goto-char (point-min))
     (org-refresh-category-properties)
     (cl-loop while (re-search-forward org-dashboard--cookie-re nil t)
-             if (or (org-at-heading-p) (org-at-item-p))
+             if (org-at-heading-or-item-p)
              collect (list :category (substring-no-properties (org-get-category))
                            :heading (org-dashboard--get-heading-text)
                            :id (org-id-get)
                            :progress-percent (org-dashboard--get-heading-progress)
                            :filename (buffer-file-name)
-                           :tags (org-get-tags)))))
+                           :tags (org-dashboard--get-tags)))))
 
 (defun org-dashboard--get-heading-text ()
   (string-trim
    (replace-regexp-in-string org-dashboard--cookie-re
                              ""
-                             (nth 4 (org-heading-components)))))
+                             (org-dashboard--get-heading-components))))
+
+(defun org-dashboard--get-heading-components ()
+  "Return heading components."
+  (cond ((org-at-heading-p) (nth 4 (org-heading-components)))
+	((org-at-item-p) (let* ((_ (org-beginning-of-item))
+				(begin (search-forward-regexp (org-item-re)))
+				(_ (org-end-of-line))
+				(end (point)))
+			   (buffer-substring-no-properties begin end)))))
 
 (defun org-dashboard--get-heading-progress ()
-  (let* ((heading-with-cookie (nth 4 (org-heading-components)))
-         (_ (string-match org-dashboard--cookie-re (nth 4 (org-heading-components))))
+  "Get progress from header."
+  (let* ((heading-with-cookie (org-dashboard--get-heading-components))
+         (_ (string-match org-dashboard--cookie-re
+			  (org-dashboard--get-heading-components)))
          (cookie (substring heading-with-cookie 0 (match-end 0))))
     (cond ((string-match "\\([0-9]+\\)%" cookie)
            (string-to-number (match-string 1 cookie)))
